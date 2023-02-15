@@ -1,20 +1,19 @@
-cmake_minimum_required(VERSION 3.1...3.25)
+cmake_minimum_required(VERSION 3.25)
 set(TARGET_NAME battleship-tui)
+
+#Add compilation warnings on C++
 set (CMAKE_CXX_STANDARD 17)
 
-project(
-    ${TARGET_NAME}
-    VERSION 1.0
-    LANGUAGES CXX)
+#Project instance
+project(${TARGET_NAME} VERSION 1.0 LANGUAGES CXX)
 
 #Setting up the sources and the header directory
-set(SOURCES "src/main.cpp")
-include_directories("header")
+set(SOURCES "src/main.cpp"
+            "src/battleship.cpp")
 
 #Creating the object files
 add_executable(${TARGET_NAME} ${SOURCES})
-
-#To ensure that warnings are present when compiling
+target_include_directories(${TARGET_NAME} PUBLIC "header")
 if(MSVC)
   target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
 else()

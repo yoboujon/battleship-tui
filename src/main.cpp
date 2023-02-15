@@ -1,7 +1,8 @@
-#include <iostream>
+#include "../header/battleship.h"
 
 int main(void)
 {
-    std::cout << "Hello Battleship !\t Goodbye ifelse !" << std::endl;
+    board coolBoard;
+    coolBoard.printBoard();
     return 0;
 }
