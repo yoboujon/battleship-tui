@@ -17,16 +17,21 @@ enum direction{
     WEST
 };
 
+typedef struct{
+    int8_t x;
+    int8_t y;
+} position;
+
 class battleship
 {
     private:
         uint8_t m_size;
         direction m_orientation;
-        uint8_t m_x;
-        uint8_t m_y;
+        position m_position;
     public:
-        battleship(uint8_t size,direction orientation, uint8_t x, uint8_t y);
+        battleship(uint8_t size,direction orientation, int8_t x, int8_t y);
         void printBoat();
+        std::vector<position> placeBoat();
 };
 
 class board
@@ -43,5 +48,7 @@ class board
         void printBoard();
         void createBoats(std::vector<uint8_t> boatsNumber);
 };
+
+void printVector(std::vector<position> vector);
 
 #endif
