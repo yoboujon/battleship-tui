@@ -6,8 +6,9 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <random>
 	
-
+#define BASE_CHAR   'a'
 #define LENGTH_BASE 10
 
 enum direction{ 
@@ -29,8 +30,11 @@ class battleship
         direction m_orientation;
         position m_position;
     public:
-        battleship(uint8_t size,direction orientation, int8_t x, int8_t y);
+        battleship(uint8_t size,direction orientation);
+        position positionOperatorFromOrientation(direction orientation, bool noNegative=false, bool noPositive=false);
+        void setBasePosition(int8_t x, int8_t y);
         void printBoat();
+        direction getOrientation();
         std::vector<position> placeBoat();
 };
 
@@ -50,5 +54,6 @@ class board
 };
 
 void printVector(std::vector<position> vector);
+const char * direction2string(direction orientation);
 
 #endif
