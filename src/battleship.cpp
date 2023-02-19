@@ -1,6 +1,5 @@
 #include "../header/battleship.h"
 #include <stdint.h>
-#include <vcruntime.h>
 
 /**     ---     BOARD       ---      **/
 
@@ -49,29 +48,63 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
     /**the random device that will seed the generator then make a mersenne twister engine**/
     std::random_device seeder;
     std::mt19937 engine(seeder());
+    bool isColliding=false;
     /**for every size of boat**/
     for(auto boatSize:boatsNumber)
     {
         battleship tempBattleShip(boatSize,(direction)(std::rand()%3));
-        /**Algorithm that will dodge negative values or values that exceed the width/height. Will be explained soon in the readme.**/
-        std::uniform_int_distribution<int> tempX(
-            0-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),false,true).x)*(boatSize-1),
-            m_width-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),true).x)*(boatSize-1));
-        std::cout << "[X] Direction : " << direction2string(tempBattleShip.getOrientation()) << "\t Min : " << 0-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),false,true).x)*(boatSize-1)
-        << "\t Max : " << m_width-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),true).x)*(boatSize-1) << std::endl ;
-        std::uniform_int_distribution<int> tempY(
-            0-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),false,true).y)*(boatSize-1),
-            m_height-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),true).y)*(boatSize-1));
-        std::cout << "[Y] Direction : " << direction2string(tempBattleShip.getOrientation()) << "\t Min : " << 0-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),false,true).y)*(boatSize-1)
-        << "\t Max : " << m_width-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),true).y)*(boatSize-1) << std::endl ;
-        tempBattleShip.setBasePosition((int8_t)tempX(engine),(int8_t)tempY(engine));
-        /*      Debug Purpose only*/
-        tempBattleShip.printBoat();
-        printVector(tempBattleShip.placeBoat());
+        do{
+            /**Algorithm that will dodge negative values or values that exceed the width/height. Will be explained soon in the readme.**/
+            std::uniform_int_distribution<int> tempX(
+                0-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),false,true).x)*(boatSize-1),
+                m_width-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),true).x)*(boatSize-1));
+            std::uniform_int_distribution<int> tempY(
+                0-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),false,true).y)*(boatSize-1),
+                m_height-(tempBattleShip.positionOperatorFromOrientation(tempBattleShip.getOrientation(),true).y)*(boatSize-1));
+            tempBattleShip.setBasePosition((int8_t)tempX(engine),(int8_t)tempY(engine));
+
+            /**Detects if a boat collide with another**/
+            isColliding = doesBoatCollide(tempBattleShip);
+
+            /*Debug Purpose only*/
+            tempBattleShip.printBoat();
+            printVector(tempBattleShip.placeBoat());
+            if(isColliding)
+            {
+                std::cout << "Colliding ! Recalculating..." << std::endl;
+            }
+        }while(isColliding);
 
         /**We update the vector of boats inside the object**/
         m_battleships.push_back(tempBattleShip);
     }
+}
+
+bool board::doesBoatCollide(battleship ship)
+{
+    /**position of the boat to test**/
+    std::vector<position> shipPos = ship.placeBoat();
+    /**For each ship in the object, we will get the positions of the boat**/
+    for(auto testShips:m_battleships)
+    {
+        std::vector<position> testShipPos = testShips.placeBoat();
+        /**NOT OPTIMISED AT ALL
+         * Will test each position with all the past boats. -> Could be better in term of pure syntax, as well as algorithm
+         * -> Maybe use a std fonction ?**/
+        for(auto testPositions:testShipPos)
+        {
+            for(auto positions:shipPos)
+            {
+                /**WE ONLY RETURN TRUE IF THIS HAPPENS ONE TIME**/
+                if((positions.x == testPositions.x) && (positions.y == testPositions.y))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    /**Return false otherwise.l**/
+    return false;
 }
 
 /**     ---     BOATS       ---      **/
@@ -91,6 +124,7 @@ void battleship::printBoat()
 position battleship::positionOperatorFromOrientation(direction orientation, bool noNegative, bool noPositive)
 {
     position returnPos{0,0};
+    /**In the case of a true value for each one, will return null, if false it will return either a minus or a positive value**/
     int8_t negValue = noNegative ? 0:-1;
     int8_t posValue = noPositive ? 0:1;
     /**Like a compass, for any given direction, we could increment or decrement a given axis. We return these axis.**/
@@ -137,6 +171,7 @@ direction battleship::getOrientation()
 
 void printVector(std::vector<position> vector)
 {
+    /**For every position print the x and y axis.**/
     for(auto value:vector)
     {
         std::cout << "x =" << (int)value.x << ", y =" << (int)value.y << "\t";
@@ -146,6 +181,7 @@ void printVector(std::vector<position> vector)
 
 const char * direction2string(direction orientation)
 {
+    /**NOT OPTIMISED, CAN BE USED WITH AN STD::MAP, SOON TO CHANGE**/
     switch(orientation)
     {
         case NORTH:
