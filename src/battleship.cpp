@@ -1,6 +1,8 @@
 #include "../header/battleship.h"
 #include <stdint.h>
 
+using namespace battleshiptui;
+
 /**     ---     BOARD       ---      **/
 
 board::board()
@@ -8,9 +10,15 @@ board::board()
 {
 }
 
-board::board(uint16_t width, uint16_t height)
+board::board(loglevel log)
+    : board(LENGTH_BASE, LENGTH_BASE, log)
+{
+}
+
+board::board(uint16_t width, uint16_t height, loglevel log)
     : m_width(width)
     , m_height(height)
+    , m_log(log)
 {
     /**We allocate the given pointer to the height it has been given**/
     m_board = new char*[height];
@@ -48,7 +56,7 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
 {
     /**the random device that will seed the generator then make a mersenne twister engine**/
     std::random_device seeder;
-    std::mt19937 engine(50);
+    std::mt19937 engine(seeder());
     bool isColliding(false);
     /**for every size of boat**/
     for (auto boatSize : boatsNumber) {
@@ -73,11 +81,11 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
             /**Detects if a boat collide with another**/
             isColliding = doesBoatCollide(tempBattleShip);
 
-            /*Debug Purpose only*/
-            tempBattleShip.printBoat();
-            printVector(tempBattleShip.placeBoat());
-            if (isColliding) {
-                std::cout << "Colliding ! Recalculating..." << std::endl;
+            if (m_log == loglevel::DEBUG) {
+                tempBattleShip.printBoat();
+                printVector(tempBattleShip.placeBoat());
+                if (isColliding)
+                    std::cout << "Colliding ! Recalculating..." << std::endl;
             }
         } while (isColliding);
 
@@ -93,9 +101,9 @@ bool board::doesBoatCollide(battleship ship)
     /**For each ship in the object, we will get the positions of the boat**/
     for (auto testShips : m_battleships) {
         std::vector<position> testShipPos = testShips.placeBoat();
-        /**NOT OPTIMISED AT ALL
-         * Will test each position with all the past boats. -> Could be better in term of pure syntax, as well as algorithm
-         * -> Maybe use a std fonction ?**/
+        /** NOT OPTIMISED
+         * ! Will test each position with all the past boats. -> Could be better in term of pure syntax, as well as algorithm
+         * TODO : -> Maybe use a std fonction ?**/
         for (auto testPositions : testShipPos) {
             for (auto positions : shipPos) {
                 /**WE ONLY RETURN TRUE IF THIS HAPPENS ONE TIME**/

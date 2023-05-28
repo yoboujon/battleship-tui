@@ -7,9 +7,10 @@
 #include <stdint.h>
 #include <vector>
 
-#define BASE_CHAR 'a'
+#define BASE_CHAR '.'
 #define LENGTH_BASE 10
 
+namespace battleshiptui {
 /**
  * @brief set of direction, from NORTH to WEST.
  */
@@ -18,6 +19,14 @@ enum direction {
     SOUTH,
     EAST,
     WEST
+};
+
+/**
+ * @brief loglevel for the battleship TUI
+ */
+enum class loglevel {
+    NORMAL,
+    DEBUG
 };
 
 /**
@@ -88,6 +97,7 @@ public:
 
 class board {
 private:
+    loglevel m_log;
     char** m_board;
     uint16_t m_width;
     uint16_t m_height;
@@ -107,13 +117,15 @@ public:
      * @brief Construct a new board object with the given LENGTH_BASE
      */
     board();
+    board(loglevel log);
     /**
-     * @brief Construct a new board object with a given width and height
+     * @brief Construct a new board object with a given width and height and a log level
      *
-     * @param width uint16_t
-     * @param height uint16_t
+     * @param width     uint16_t
+     * @param height    uint16_t
+     * @param log       loglevel
      */
-    board(uint16_t width, uint16_t height);
+    board(uint16_t width, uint16_t height, loglevel log = loglevel::NORMAL);
     ~board();
 
     /**
@@ -132,6 +144,7 @@ public:
      */
     void createBoats(std::vector<uint8_t> boatsNumber);
 };
+};
 
 /**
  * @brief ONLY FOR DEBUG PURPOSES
@@ -139,7 +152,7 @@ public:
  *
  * @param vector vector of position struct.
  */
-void printVector(std::vector<position> vector);
+void printVector(std::vector<battleshiptui::position> vector);
 
 /**
  * @brief converts a given direction enum to a string
@@ -147,6 +160,6 @@ void printVector(std::vector<position> vector);
  * @param orientation direction
  * @return const char* char array of the direction
  */
-const char* direction2string(direction orientation);
+const char* direction2string(battleshiptui::direction orientation);
 
 #endif
