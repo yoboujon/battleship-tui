@@ -1,5 +1,7 @@
-#include "../header/battleship.h"
+#include "battleship.h"
+#include "exception.h"
 #include <stdint.h>
+
 
 using namespace battleshiptui;
 
@@ -16,9 +18,9 @@ board::board(loglevel log)
 }
 
 board::board(uint16_t width, uint16_t height, loglevel log)
-    : m_width(width)
+    : m_log(log)
+    , m_width(width)
     , m_height(height)
-    , m_log(log)
 {
     /**We allocate the given pointer to the height it has been given**/
     m_board = new char*[height];
@@ -58,6 +60,10 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
     std::random_device seeder;
     std::mt19937 engine(seeder());
     bool isColliding(false);
+    /**First check if boat size is not what expected**/
+    if (boatsNumber.size() > 1) {
+        throw battleshipException(1, "Too much boat for the grid !");
+    }
     /**for every size of boat**/
     for (auto boatSize : boatsNumber) {
         battleship tempBattleShip(boatSize, (direction)(std::rand() % 3));
@@ -113,7 +119,7 @@ bool board::doesBoatCollide(battleship ship)
             }
         }
     }
-    /**Return false otherwise.l**/
+    /**Return false otherwise**/
     return false;
 }
 

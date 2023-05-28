@@ -1,0 +1,5 @@
+CompileFlags:
+    Add: [
+        -DSOME_SYMBOL=symbol_definition,
+        "-ID:\\Data\\Videos\\Programmation\\battleship-tui\\header"
+    ]

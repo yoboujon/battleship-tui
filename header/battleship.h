@@ -1,5 +1,6 @@
-#ifndef HEADER_BATTLESHIP
-#define HEADER_BATTLESHIP
+#ifndef HEADER_BTUI_BATTLESHIP
+#define HEADER_BTUI_BATTLESHIP
+
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
