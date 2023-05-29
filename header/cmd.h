@@ -1,24 +1,34 @@
 #ifndef HEADER_COMMAND
 #define HEADER_COMMAND
 
+#include <map>
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include <map>
+
 
 namespace command {
 
-typedef struct{
+enum ERR {
+    FLOAT = 4,
+    INT = 5,
+    UINT = 6,
+    NOTCHAR = 7
+};
+
+typedef struct {
+    std::vector<char> charArg;
+    std::vector<uint8_t> byteArg;
     std::vector<int64_t> intArg;
     std::vector<uint64_t> uintArg;
     std::vector<double> doubleArg;
     std::vector<std::string> string;
-} commandArgs;
+} valuesArg;
 
-typedef struct{
+typedef struct {
     std::string command;
     std::vector<std::string> args;
-} functionArgs;
+} completeCommand_t;
 
 class commandGeneric {
 protected:
@@ -28,16 +38,35 @@ protected:
     /**
      * @brief With the given m_cmd, will return a vector of string of
      * all the arguments as well as the command itself in a form of a vector.
-     * 
-     * @return std::vector<std::string> 
+     *
+     * @return completeCommand_t
      */
-    functionArgs parser(void);
+    completeCommand_t parser(void);
 
-    commandArgs  argParser(std::string, std::vector<std::string> args);
+    /**
+     * @brief will return the actual values from the command with the correct type.
+     * If the conversion couldn't be done will return an error.
+     *
+     * @param cmd the vector of command and args
+     * @return valuesArg in the correct order, the values of each type
+     */
+    valuesArg argParser(completeCommand_t completeCmd);
 
 public:
     commandGeneric();
     ~commandGeneric();
+};
+
+class commandException : public std::exception {
+private:
+    std::string error;
+    const uint32_t code;
+
+public:
+    commandException(uint32_t errorCode, std::string errorString);
+    ~commandException();
+    uint32_t getErrorCode(void);
+    const char* getError(void);
 };
 
 }

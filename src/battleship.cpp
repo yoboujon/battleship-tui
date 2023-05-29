@@ -6,7 +6,9 @@
 
 using namespace battleshiptui;
 
-/**     ---     BOARD       ---      **/
+/*------------------------------------------------------*/
+/*                          Board                       */
+/*------------------------------------------------------*/
 
 board::board()
     : board(LENGTH_BASE, LENGTH_BASE)
@@ -67,8 +69,8 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
         throw battleshipException(1, "Too much boats for the grid !");
     /**Check if the size of width/height can contain the biggest boat**/
     auto maxSizeBoat = *std::max_element(boatsNumber.begin(), boatsNumber.end());
-    if((maxSizeBoat > m_height) || (maxSizeBoat > m_width))
-        throw battleshipException(2, std::string("The grid has a size of "+std::to_string(m_height)+"x"+std::to_string(m_width)+", the biggest boat has a size of "+std::to_string(maxSizeBoat)));
+    if ((maxSizeBoat > m_height) || (maxSizeBoat > m_width))
+        throw battleshipException(2, std::string("The grid has a size of " + std::to_string(m_height) + "x" + std::to_string(m_width) + ", the biggest boat has a size of " + std::to_string(maxSizeBoat)));
     /**for every size of boat**/
     for (auto boatSize : boatsNumber) {
         battleship tempBattleShip(boatSize, (direction)(std::rand() % 3));
@@ -128,7 +130,15 @@ bool board::doesBoatCollide(battleship ship)
     return false;
 }
 
-/**     ---     BOATS       ---      **/
+void board::attack(position pos)
+{
+    // For now doesn't do a thing.
+    std::cout << "Launched an attack at x:" << int(pos.x) << ", y:" << int(pos.y) << std::endl;
+}
+
+/*------------------------------------------------------*/
+/*                    Battleship                        */
+/*------------------------------------------------------*/
 
 battleship::battleship(uint8_t size, direction orientation)
     : m_size(size)
@@ -189,7 +199,10 @@ direction battleship::getOrientation()
     return m_orientation;
 }
 
-/**     ---     BASE FUNCTIONS       ---      **/
+/*------------------------------------------------------*/
+/*                    Base Functions                    *
+!   May be placed in a separate library later.          */
+/*------------------------------------------------------*/
 
 void printVector(std::vector<position> vector)
 {

@@ -1,4 +1,5 @@
 #include "battleship.h"
+#include "cmd.h"
 #include "cmd_battleship.h"
 #include "exception.h"
 #include <stdint.h>
@@ -25,7 +26,14 @@ int main(void)
     // Step
     std::cout << "Enter a command." << std::endl;
     std::getline(std::cin, userInput);
-    userCommand.readCommand(userInput);
-    //userBoard.printBoard();
+    try {
+        userCommand.readCommand(userInput);
+    } catch (command::commandException& e) {
+        std::cout << e.getError() << std::endl;
+    } catch (battleshipException& e) {
+        std::cout << "Battleship-TUI Error " << e.getErrorCode() << ": " << e.getError() << std::endl;
+    }
+
+    // userBoard.printBoard();
     return 0;
 }

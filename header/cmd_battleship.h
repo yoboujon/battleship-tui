@@ -3,15 +3,17 @@
 
 #include "battleship.h"
 #include "cmd.h"
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
+
 
 namespace battleshiptui {
 
 class commandBattleship : public command::commandGeneric {
 private:
     board& m_board;
+
 public:
     commandBattleship(board& actualBoard);
     ~commandBattleship();

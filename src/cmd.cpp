@@ -1,8 +1,13 @@
 #include "cmd.h"
 #include <iostream>
+#include <stdint.h>
 #include <string>
 
 using namespace command;
+
+/*------------------------------------------------------*/
+/*                    Command Generic                   */
+/*------------------------------------------------------*/
 
 commandGeneric::commandGeneric()
 {
@@ -12,9 +17,9 @@ commandGeneric::~commandGeneric()
 {
 }
 
-functionArgs commandGeneric::parser(void)
+completeCommand_t commandGeneric::parser(void)
 {
-    functionArgs parsing;
+    completeCommand_t parsing;
     std::string copy_cmd(m_cmd), token;
     size_t pos(0);
     bool isArg(false);
@@ -36,4 +41,73 @@ functionArgs commandGeneric::parser(void)
     // We get the last argument
     parsing.args.push_back(copy_cmd.substr(pos + 1, copy_cmd.size()));
     return parsing;
+}
+
+valuesArg commandGeneric::argParser(completeCommand_t completeCmd)
+{
+    valuesArg returnValuesArg;
+    int i(0);
+    /*Tests if the command actually exists.*/
+    if (m_commandMap.find(completeCmd.command) == m_commandMap.end())
+        throw commandException(1, "'" + completeCmd.command + "': command not found, type 'help' for a list of installed component.");
+    /*Tests if the number of argument is complient with the command typed*/
+    if (completeCmd.args.size() != m_commandMap[completeCmd.command].size())
+        throw commandException(2, "'" + completeCmd.command + "' asks for " + std::to_string(m_commandMap[completeCmd.command].size()) + " arguments, " + std::to_string(completeCmd.args.size()) + " provided.");
+    for (auto expectedType : m_commandMap[completeCmd.command]) {
+        switch (expectedType) {
+        case 'c':
+            if (completeCmd.args[i].size() > 1)
+                throw commandException(NOTCHAR, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a char.");
+            returnValuesArg.charArg.push_back(completeCmd.args[i][0]);
+            break;
+        case 'b':
+            if (completeCmd.args[i].find('.') != std::string::npos)
+                throw commandException(FLOAT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned byte.");
+            if (std::stoi(completeCmd.args[i]) < 0)
+                throw commandException(INT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned byte.");
+            returnValuesArg.byteArg.push_back(static_cast<uint8_t>(std::stoi(completeCmd.args[i])));
+            break;
+        case 'u':
+            if (completeCmd.args[i].find('.') != std::string::npos)
+                throw commandException(FLOAT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned number.");
+            if (std::stoll(completeCmd.args[i]) < 0)
+                throw commandException(INT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned number.");
+            returnValuesArg.uintArg.push_back(std::stoll(completeCmd.args[i]));
+            break;
+        case 'i':
+            if (completeCmd.args[i].find('.') != std::string::npos)
+                throw commandException(FLOAT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a whole number.");
+            returnValuesArg.intArg.push_back(std::stoll(completeCmd.args[i]));
+            break;
+        default:
+            throw commandException(3, "'" + completeCmd.command + "': Invalid command mapping.");
+            break;
+        }
+        i++;
+    }
+    return returnValuesArg;
+}
+
+/*------------------------------------------------------*/
+/*                    Command Exception                 */
+/*------------------------------------------------------*/
+
+commandException::commandException(uint32_t errorCode, std::string errorString)
+    : error(errorString)
+    , code(errorCode)
+{
+}
+
+commandException::~commandException()
+{
+}
+
+uint32_t commandException::getErrorCode(void)
+{
+    return code;
+}
+
+const char* commandException::getError(void)
+{
+    return error.c_str();
 }

@@ -5,10 +5,11 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include <numeric>
 #include <random>
 #include <stdint.h>
 #include <vector>
-#include <numeric>
+
 
 #define BASE_CHAR '.'
 #define LENGTH_BASE 10
@@ -146,6 +147,13 @@ public:
      * @param boatsNumber  the size represents the number of boat, and each number is the boat's size.
      */
     void createBoats(std::vector<uint8_t> boatsNumber);
+
+    /**
+     * @brief Will deal damage to a boat if found at the given position
+     *
+     * @param pos
+     */
+    void attack(position pos);
 };
 };
 
