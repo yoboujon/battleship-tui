@@ -1,9 +1,14 @@
 #include "cmd_battleship.h"
+#include <functional>
 
 using namespace battleshiptui;
 
-commandBattleship::commandBattleship()
+commandBattleship::commandBattleship(board& actualBoard)
+    : m_board(actualBoard)
 {
+    m_commandMap = { { "attack", "uu" },
+        { "testfloat", "f" },
+        { "teststring", "s" } };
 }
 
 commandBattleship::~commandBattleship()
@@ -13,12 +18,10 @@ commandBattleship::~commandBattleship()
 void commandBattleship::readCommand(std::string cmd)
 {
     m_cmd = cmd;
-    auto args=parser();
-    for (auto & arg : args) 
-    {
-        if(arg == args[0])
-        std::cout << "Command entered: " << arg << "\nArguments: ";
-        else
+    auto commandParsed = parser();
+
+    std::cout << "Command entered: " << commandParsed.command << std::endl;
+    for (auto& arg : commandParsed.args) {
         std::cout << "'" << arg << "'\t";
     }
     std::cout << std::endl;

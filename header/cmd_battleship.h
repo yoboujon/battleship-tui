@@ -5,13 +5,15 @@
 #include "cmd.h"
 #include <string>
 #include <vector>
+#include <map>
 
 namespace battleshiptui {
 
-class commandBattleship : public commandGeneric {
+class commandBattleship : public command::commandGeneric {
 private:
+    board& m_board;
 public:
-    commandBattleship();
+    commandBattleship(board& actualBoard);
     ~commandBattleship();
     void readCommand(std::string cmd);
 };
