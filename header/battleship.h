@@ -1,12 +1,14 @@
 #ifndef HEADER_BTUI_BATTLESHIP
 #define HEADER_BTUI_BATTLESHIP
 
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <random>
 #include <stdint.h>
 #include <vector>
+#include <numeric>
 
 #define BASE_CHAR '.'
 #define LENGTH_BASE 10

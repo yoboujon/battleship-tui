@@ -3,14 +3,15 @@
 
 #include <exception>
 #include <stdint.h>
+#include <string>
 
 class battleshipException : public std::exception {
 private:
-    const char* error;
+    std::string error;
     const uint32_t code;
 
 public:
-    battleshipException(uint32_t errorCode, const char* errorString);
+    battleshipException(uint32_t errorCode, std::string errorString);
     ~battleshipException();
     uint32_t getErrorCode(void);
     const char* getError(void);

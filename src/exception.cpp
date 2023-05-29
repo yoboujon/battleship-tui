@@ -1,6 +1,7 @@
 #include "exception.h"
+#include <string>
 
-battleshipException::battleshipException(uint32_t errorCode, const char* errorString)
+battleshipException::battleshipException(uint32_t errorCode, std::string errorString)
     : error(errorString)
     , code(errorCode)
 {
@@ -17,5 +18,5 @@ uint32_t battleshipException::getErrorCode(void)
 
 const char* battleshipException::getError(void)
 {
-    return error;
+    return error.c_str();
 }

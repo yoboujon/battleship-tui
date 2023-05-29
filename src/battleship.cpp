@@ -1,7 +1,8 @@
 #include "battleship.h"
 #include "exception.h"
+#include <algorithm>
 #include <stdint.h>
-
+#include <string>
 
 using namespace battleshiptui;
 
@@ -60,10 +61,14 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
     std::random_device seeder;
     std::mt19937 engine(seeder());
     bool isColliding(false);
-    /**First check if boat size is not what expected**/
-    if (boatsNumber.size() > 1) {
-        throw battleshipException(1, "Too much boat for the grid !");
-    }
+
+    /**First check if all the boats can fit in the grid**/
+    if ((m_height * m_width) < std::accumulate(boatsNumber.begin(), boatsNumber.end(), 0))
+        throw battleshipException(1, "Too much boats for the grid !");
+    /**Check if the size of width/height can contain the biggest boat**/
+    auto maxSizeBoat = *std::max_element(boatsNumber.begin(), boatsNumber.end());
+    if((maxSizeBoat > m_height) || (maxSizeBoat > m_width))
+        throw battleshipException(2, std::string("The grid has a size of "+std::to_string(m_height)+"x"+std::to_string(m_width)+", the biggest boat has a size of "+std::to_string(maxSizeBoat)));
     /**for every size of boat**/
     for (auto boatSize : boatsNumber) {
         battleship tempBattleShip(boatSize, (direction)(std::rand() % 3));
