@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <string>
 
+namespace battleshiptui {
+
 class battleshipException : public std::exception {
 private:
     std::string error;
@@ -16,5 +18,7 @@ public:
     uint32_t getErrorCode(void);
     const char* getError(void);
 };
+
+}
 
 #endif

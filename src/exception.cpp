@@ -1,6 +1,8 @@
 #include "exception.h"
 #include <string>
 
+using namespace battleshiptui;
+
 battleshipException::battleshipException(uint32_t errorCode, std::string errorString)
     : error(errorString)
     , code(errorCode)

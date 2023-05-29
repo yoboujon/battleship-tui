@@ -8,9 +8,10 @@ set(CMAKE_CXX_STANDARD 17)
 project(${TARGET_NAME} VERSION 1.0 LANGUAGES CXX)
 
 #Setting up the sources and the header directory
-set(SOURCES "src/main.cpp"
-            "src/battleship.cpp"
-            "src/exception.cpp")
+file(GLOB SOURCES
+        "${PROJECT_SOURCE_DIR}/include/*.h"
+        "${PROJECT_SOURCE_DIR}/src/*.cpp"
+        )
 
 #Creating the object files
 add_executable(${TARGET_NAME} ${SOURCES})
