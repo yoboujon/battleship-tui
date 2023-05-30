@@ -7,7 +7,7 @@
 #include <iostream>
 #include <numeric>
 #include <random>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 

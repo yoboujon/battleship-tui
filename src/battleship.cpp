@@ -1,8 +1,8 @@
 #include "battleship.h"
 #include "exception.h"
 #include <algorithm>
-#include <stdint.h>
 #include <string>
+#include <cstring>
 
 using namespace battleshiptui;
 
