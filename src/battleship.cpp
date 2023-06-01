@@ -143,6 +143,7 @@ void board::attack(position pos)
 battleship::battleship(uint8_t size, direction orientation)
     : m_size(size)
     , m_orientation(orientation)
+    , m_healthPoint(size)
 {
 }
 
@@ -197,6 +198,16 @@ std::vector<position> battleship::placeBoat()
 direction battleship::getOrientation()
 {
     return m_orientation;
+}
+
+void battleship::loseHealth()
+{
+    m_healthPoint--;
+}
+
+uint8_t battleship::getHealth()
+{
+    return m_healthPoint;
 }
 
 /*------------------------------------------------------*/

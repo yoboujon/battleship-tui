@@ -44,9 +44,13 @@ typedef struct {
 class battleship {
 private:
     /**
-     * @brief the size will delimit the boat total position
+     * @brief The size will delimit the boat total position
      */
     uint8_t m_size;
+    /**
+     * @brief Remainig health of the boat
+     */
+    uint8_t m_healthPoint;
     /**
      * @brief The direction will provide all the boat's position
      */
@@ -55,7 +59,6 @@ private:
      * @brief works like a base position, the turning point for the boat.
      */
     position m_position;
-
 public:
     battleship(uint8_t size, direction orientation);
 
@@ -97,6 +100,10 @@ public:
      * @return std::vector<position> vector of position in x and y.
      */
     std::vector<position> placeBoat();
+
+    void loseHealth();
+
+    uint8_t getHealth();
 };
 
 class board {
