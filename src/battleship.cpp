@@ -219,16 +219,17 @@ direction battleship::getOrientation()
 boatStatus battleship::hitBoat(position pos)
 {
     // We first verify if all the position of the boat has already been hit
-    if (m_hitCount.size() == m_size)
+    if (m_hitCount.size() >= m_size)
         return boatStatus::SUNK;
     // Then we verify if the position given corresponds to a position of the hit count
     for (auto& boatHit : m_hitCount) {
         if ((boatHit.x == pos.x) && (boatHit.y == pos.y))
-            return boatStatus::SPLASHBOAT;
+            return  boatStatus::SPLASHBOAT;
     }
     // If not we add the position to the hit count
     m_hitCount.push_back(pos);
-    return boatStatus::HIT;
+    // We then verify, if we don't hit the boat, that the boat is sinking or not.
+    return m_hitCount.size() >= m_size ? boatStatus::SUNK : boatStatus::HIT;
 }
 
 /*------------------------------------------------------*/
