@@ -4,7 +4,6 @@
 #include <cstring>
 #include <string>
 
-
 using namespace battleshiptui;
 
 /*------------------------------------------------------*/
@@ -25,6 +24,7 @@ board::board(uint16_t width, uint16_t height, loglevel log)
     : m_log(log)
     , m_width(width)
     , m_height(height)
+    , m_gameFinished(false)
 {
     /**We allocate the given pointer to the height it has been given**/
     m_board = new char*[height];
@@ -97,7 +97,7 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
 
             if (m_log == loglevel::DEBUG) {
                 tempBattleShip.printBoat();
-                printVector(tempBattleShip.placeBoat());
+                printVector(tempBattleShip.getBoatPositions());
                 if (isColliding)
                     std::cout << "Colliding ! Recalculating..." << std::endl;
             }
@@ -111,10 +111,10 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
 bool board::doesBoatCollide(battleship ship)
 {
     /**position of the boat to test**/
-    std::vector<position> shipPos = ship.placeBoat();
+    std::vector<position> shipPos = ship.getBoatPositions();
     /**For each ship in the object, we will get the positions of the boat**/
     for (auto testShips : m_battleships) {
-        std::vector<position> testShipPos = testShips.placeBoat();
+        auto testShipPos = testShips.getBoatPositions();
         /** NOT OPTIMISED
          * ! Will test each position with all the past boats. -> Could be better in term of pure syntax, as well as algorithm
          * TODO : -> Maybe use a std fonction ?**/
@@ -131,10 +131,25 @@ bool board::doesBoatCollide(battleship ship)
     return false;
 }
 
-void board::attack(position pos)
+boatStatus board::attack(position pos)
 {
-    // For now doesn't do a thing.
-    std::cout << "Launched an attack at x:" << int(pos.x) << ", y:" << int(pos.y) << std::endl;
+    // We inform in debug where the attack is launched
+    if (m_log == loglevel::DEBUG)
+        std::cout << "Launched an attack at x:" << int(pos.x) << ", y:" << int(pos.y) << std::endl;
+    // We iterate through all the boats to find if the position correponds to one of them
+    for (auto& boat : m_battleships) {
+        for (auto& boatPositions : boat.getBoatPositions()) {
+            if ((pos.x == boatPositions.x) && (pos.y == boatPositions.y))
+                return boat.hitBoat(pos);
+        }
+    }
+    // If no boat found then we return the SPLASHWATER status
+    return boatStatus::SPLASHWATER;
+}
+
+bool board::isGameFinished(void)
+{
+    return m_gameFinished;
 }
 
 /*------------------------------------------------------*/
@@ -182,7 +197,7 @@ position battleship::positionOperatorFromOrientation(direction orientation, bool
     return returnPos;
 }
 
-std::vector<position> battleship::placeBoat()
+std::vector<position> battleship::getBoatPositions()
 {
     std::vector<position> returnVector;
     position operatorPosition;
@@ -203,15 +218,15 @@ direction battleship::getOrientation()
 
 boatStatus battleship::hitBoat(position pos)
 {
-    //We first verify if all the position of the boat has already been hit
-    if(m_hitCount.size() == m_size)
+    // We first verify if all the position of the boat has already been hit
+    if (m_hitCount.size() == m_size)
         return boatStatus::SUNK;
-    //Then we verify if the position given corresponds to a position of the hit count
+    // Then we verify if the position given corresponds to a position of the hit count
     for (auto& boatHit : m_hitCount) {
         if ((boatHit.x == pos.x) && (boatHit.y == pos.y))
-            return boatStatus::SPLASH;
+            return boatStatus::SPLASHBOAT;
     }
-    //If not we add the position to the hit count
+    // If not we add the position to the hit count
     m_hitCount.push_back(pos);
     return boatStatus::HIT;
 }

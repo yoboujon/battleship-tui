@@ -22,6 +22,24 @@ void commandBattleship::readCommand(std::string cmd)
     m_cmd = cmd;
     auto commandParsed = parser();
     auto vars = argParser(commandParsed);
-    if (commandParsed.command == "attack")
-        m_board.attack(position { static_cast<int8_t>(vars.byteArg[0]), static_cast<int8_t>(vars.byteArg[1]) });
+    if (commandParsed.command == "attack") {
+        auto status = m_board.attack(position { static_cast<int8_t>(vars.byteArg[0]), static_cast<int8_t>(vars.byteArg[1]) });
+        switch (status) {
+        case boatStatus::HIT:
+            std::cout << "Boat hit !" << std::endl;
+            break;
+        case boatStatus::SPLASHBOAT:
+            std::cout << "Boat already hit !" << std::endl;
+            break;
+        case boatStatus::SPLASHWATER:
+            std::cout << "SLASH !" << std::endl;
+            break;
+        case boatStatus::SUNK:
+            std::cout << "Boat has sunk !" << std::endl;
+            break;
+        default:
+            std::cout << "attack : Undefined Behavior" << std::endl;
+            break;
+        }
+    }
 }

@@ -38,8 +38,9 @@ enum class loglevel {
  */
 enum class boatStatus {
     HIT,
-    SPLASH,
-    SUNK
+    SPLASHWATER,
+    SPLASHBOAT,
+    SUNK,
 };
 
 /**
@@ -109,7 +110,7 @@ public:
      *
      * @return std::vector<position> vector of position in x and y.
      */
-    std::vector<position> placeBoat();
+    std::vector<position> getBoatPositions();
 
     /**
      * @brief Will hit the boat, and return a status. If the status corresponds to a hit.
@@ -129,6 +130,12 @@ private:
     uint16_t m_width;
     uint16_t m_height;
     std::vector<battleship> m_battleships;
+
+    /**
+     * ! FOR NOW NOT WORKING
+     * Will inform the user if the game is finished
+     */
+    bool m_gameFinished;
 
     /**
      * @brief PROMPT TO HUGE UPDATE : NOT OPTIMISED
@@ -176,7 +183,15 @@ public:
      *
      * @param pos
      */
-    void attack(position pos);
+    boatStatus attack(position pos);
+
+    /**
+     * @brief 
+     * 
+     * @return true 
+     * @return false 
+     */
+    bool isGameFinished();
 };
 };
 

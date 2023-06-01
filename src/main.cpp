@@ -24,14 +24,16 @@ int main(void)
     }
 
     // Step
-    std::cout << "Enter a command." << std::endl;
-    std::getline(std::cin, userInput);
-    try {
-        userCommand.readCommand(userInput);
-    } catch (command::commandException& e) {
-        std::cout << e.getError() << std::endl;
-    } catch (battleshipException& e) {
-        std::cout << "Battleship-TUI Error " << e.getErrorCode() << ": " << e.getError() << std::endl;
+    while (!userBoard.isGameFinished()) {
+        std::cout << "Enter a command." << std::endl;
+        std::getline(std::cin, userInput);
+        try {
+            userCommand.readCommand(userInput);
+        } catch (command::commandException& e) {
+            std::cout << e.getError() << std::endl;
+        } catch (battleshipException& e) {
+            std::cout << "Battleship-TUI Error " << e.getErrorCode() << ": " << e.getError() << std::endl;
+        }
     }
 
     // userBoard.printBoard();
