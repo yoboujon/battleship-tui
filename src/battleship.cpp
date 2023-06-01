@@ -1,8 +1,9 @@
 #include "battleship.h"
 #include "exception.h"
 #include <algorithm>
-#include <string>
 #include <cstring>
+#include <string>
+
 
 using namespace battleshiptui;
 
@@ -143,8 +144,8 @@ void board::attack(position pos)
 battleship::battleship(uint8_t size, direction orientation)
     : m_size(size)
     , m_orientation(orientation)
-    , m_healthPoint(size)
 {
+    m_hitCount.reserve(size);
 }
 
 void battleship::setBasePosition(int8_t x, int8_t y)
@@ -200,14 +201,19 @@ direction battleship::getOrientation()
     return m_orientation;
 }
 
-void battleship::loseHealth()
+boatStatus battleship::hitBoat(position pos)
 {
-    m_healthPoint--;
-}
-
-uint8_t battleship::getHealth()
-{
-    return m_healthPoint;
+    //We first verify if all the position of the boat has already been hit
+    if(m_hitCount.size() == m_size)
+        return boatStatus::SUNK;
+    //Then we verify if the position given corresponds to a position of the hit count
+    for (auto& boatHit : m_hitCount) {
+        if ((boatHit.x == pos.x) && (boatHit.y == pos.y))
+            return boatStatus::SPLASH;
+    }
+    //If not we add the position to the hit count
+    m_hitCount.push_back(pos);
+    return boatStatus::HIT;
 }
 
 /*------------------------------------------------------*/

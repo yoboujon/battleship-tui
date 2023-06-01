@@ -34,6 +34,15 @@ enum class loglevel {
 };
 
 /**
+ * @brief Boat status returned when hitting it
+ */
+enum class boatStatus {
+    HIT,
+    SPLASH,
+    SUNK
+};
+
+/**
  * @brief position struct, only values between -128 and 128 (will maybe change later.)
  */
 typedef struct {
@@ -48,9 +57,10 @@ private:
      */
     uint8_t m_size;
     /**
-     * @brief Remainig health of the boat
+     * @brief Vector of position hit count
+     * ! Can and will be replaced by a better memory-wise manner-
      */
-    uint8_t m_healthPoint;
+    std::vector<position> m_hitCount;
     /**
      * @brief The direction will provide all the boat's position
      */
@@ -101,9 +111,15 @@ public:
      */
     std::vector<position> placeBoat();
 
-    void loseHealth();
-
-    uint8_t getHealth();
+    /**
+     * @brief Will hit the boat, and return a status. If the status corresponds to a hit.
+     * It will update the hitCount vector and reduce the 'health' of the boat. Otherwise will only
+     * Send the appropriate status
+     * 
+     * @param pos the position to hit the boat
+     * @return boatStatus HIT if ok, SPLASH if already hit, SUNK if the boat is no longer up
+     */
+    boatStatus hitBoat(position pos);
 };
 
 class board {

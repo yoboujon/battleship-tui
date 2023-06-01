@@ -43,6 +43,12 @@ completeCommand_t commandGeneric::parser(void)
     return parsing;
 }
 
+/**
+ * * For now only does the c,b,u and i types.*
+ * TODO : Implement the string case 's'
+ * ! If the user enters a string it doesn't detect it for now
+ * ! Maybe optimizing the code could be a good idea because there are like 10 lines of code that are the same...
+ */
 valuesArg commandGeneric::argParser(completeCommand_t completeCmd)
 {
     valuesArg returnValuesArg;
