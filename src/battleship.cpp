@@ -32,7 +32,7 @@ board::board(uint16_t width, uint16_t height, loglevel log)
         /**For every height, we allocate the width to the pointer pointed
          * Thanks to 1iMAngie during my livestream <3**/
         m_board[i] = new char[width];
-        memset(m_board[i], BASE_CHAR, width);
+        memset(m_board[i], static_cast<char>(boardChar::EMPTY), width);
     }
 }
 
@@ -141,6 +141,7 @@ bool board::doesBoatCollide(battleship ship)
 
 boatStatus board::attack(position pos)
 {
+    auto status(boatStatus::SPLASHWATER);
     // We inform in debug where the attack is launched
     if (m_log == loglevel::DEBUG)
         std::cout << "Launched an attack at x:" << int(pos.x)
@@ -149,12 +150,16 @@ boatStatus board::attack(position pos)
     // of them
     for (auto& boat : m_battleships) {
         for (auto& boatPositions : boat.getBoatPositions()) {
-            if ((pos.x == boatPositions.x) && (pos.y == boatPositions.y))
-                return boat.hitBoat(pos);
+            if ((pos.x == boatPositions.x) && (pos.y == boatPositions.y)) {
+                status = boat.hitBoat(pos);
+                updateBoard(pos, status);
+                return status;
+            }
         }
     }
     // If no boat found then we return the SPLASHWATER status
-    return boatStatus::SPLASHWATER;
+    updateBoard(pos, status);
+    return status;
 }
 
 bool board::isGameFinished(void)
@@ -166,6 +171,22 @@ bool board::isGameFinished(void)
     if (m_log == loglevel::DEBUG)
         std::cout << "Boats sunk : " << std::to_string(sunkCount) << "/" << m_battleships.size() << std::endl;
     return (sunkCount == m_battleships.size());
+}
+
+void board::updateBoard(position pos, boatStatus status)
+{
+    std::cout << "Updating board at x:" << pos.x << ", y:" << pos.y << ", with status:" << static_cast<int>(status) << std::endl;
+    switch (status) {
+    case boatStatus::HIT:
+    case boatStatus::SUNK:
+        m_board[pos.x][pos.y] = static_cast<char>(boardChar::BOAT);
+        break;
+    case boatStatus::SPLASHWATER:
+        m_board[pos.x][pos.y] = static_cast<char>(boardChar::SPLASH);
+        break;
+    default:
+        break;
+    }
 }
 
 /*------------------------------------------------------*/

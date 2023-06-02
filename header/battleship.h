@@ -10,7 +10,6 @@
 #include <random>
 #include <vector>
 
-#define BASE_CHAR '.'
 #define LENGTH_BASE 10
 
 namespace battleshiptui {
@@ -40,6 +39,12 @@ enum class boatStatus {
     SPLASHWATER,
     SPLASHBOAT,
     SUNK,
+};
+
+enum class boardChar {
+    EMPTY = ' ',
+    SPLASH = '*',
+    BOAT = 'x'
 };
 
 /**
@@ -151,6 +156,8 @@ private:
      * @return false if there is no colliding.
      */
     bool doesBoatCollide(battleship ship);
+
+    void updateBoard(position pos, boatStatus status);
 
 public:
     /**

@@ -25,6 +25,7 @@ int main(void)
 
     // Step
     while (!userBoard.isGameFinished()) {
+        userBoard.printBoard();
         std::cout << "Enter a command." << std::endl;
         std::getline(std::cin, userInput);
         try {
