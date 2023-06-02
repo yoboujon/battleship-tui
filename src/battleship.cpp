@@ -92,10 +92,10 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
              * pSize = size if SOUTH (so either maxWidth, or maxWidth-size)**/
             std::uniform_int_distribution<int> tempX(
                 0 + ((tempBattleShip.getOrientation() == direction::WEST) * (boatSize - 1)),
-                m_width - ((tempBattleShip.getOrientation() == direction::EAST) * (boatSize - 1)));
+                (m_width-1) - ((tempBattleShip.getOrientation() == direction::EAST) * (boatSize - 1)));
             std::uniform_int_distribution<int> tempY(
                 0 + ((tempBattleShip.getOrientation() == direction::NORTH) * (boatSize - 1)),
-                m_height - ((tempBattleShip.getOrientation() == direction::SOUTH) * (boatSize - 1)));
+                (m_height-1) - ((tempBattleShip.getOrientation() == direction::SOUTH) * (boatSize - 1)));
             tempBattleShip.setBasePosition((int8_t)tempX(engine),
                 (int8_t)tempY(engine));
 
