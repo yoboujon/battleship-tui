@@ -9,6 +9,7 @@ commandBattleship::commandBattleship(board& actualBoard)
     : m_board(actualBoard)
 {
     m_commandMap.insert({ "attack", "bb" });
+    m_commandMap.insert({ "terminate", ""});
     m_commandMap.insert({ "testfloat", "f" });
     m_commandMap.insert({ "teststring", "s" });
 }
@@ -39,5 +40,9 @@ void commandBattleship::readCommand(std::string cmd)
             std::cout << "attack : Undefined Behavior" << std::endl;
             break;
         }
+    }
+    if(m_commandParsed.command == "terminate")
+    {
+        m_board.finishGame();
     }
 }

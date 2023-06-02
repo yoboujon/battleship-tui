@@ -25,6 +25,7 @@ board::board(uint16_t width, uint16_t height, loglevel log)
     : m_log(log)
     , m_width(width)
     , m_height(height)
+    , m_forceFinish(false)
 {
     /**We allocate the given pointer to the height it has been given**/
     m_board = new char*[height];
@@ -165,12 +166,14 @@ boatStatus board::attack(position pos)
 bool board::isGameFinished(void)
 {
     uint8_t sunkCount(0);
+    //For every boat that are sunk
     for (auto& battleShip : m_battleships) {
         sunkCount += static_cast<uint8_t>(battleShip.isBoatSunk());
     }
     if (m_log == loglevel::DEBUG)
         std::cout << "Boats sunk : " << std::to_string(sunkCount) << "/" << m_battleships.size() << std::endl;
-    return (sunkCount == m_battleships.size());
+    //If forceFinish return true, otherwise test the battleship count with the sunkCount
+    return m_forceFinish? true : sunkCount == m_battleships.size();
 }
 
 void board::updateBoard(position pos, boatStatus status)
@@ -187,6 +190,11 @@ void board::updateBoard(position pos, boatStatus status)
     default:
         break;
     }
+}
+
+void board::finishGame()
+{
+    m_forceFinish = true;
 }
 
 /*------------------------------------------------------*/

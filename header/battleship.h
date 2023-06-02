@@ -147,6 +147,7 @@ private:
     uint16_t m_width;
     uint16_t m_height;
     std::vector<battleship> m_battleships;
+    bool m_forceFinish;
 
     /**
      * @brief PROMPT TO HUGE UPDATE : NOT OPTIMISED
@@ -199,12 +200,17 @@ public:
     boatStatus attack(position pos);
 
     /**
-     * @brief
+     * @brief Compare the number of boat that are sunk to the total number.
      *
-     * @return true
-     * @return false
+     * @return true If the sunkCount = boatCount
+     * @return false If the sunkCount < boatCount
      */
     bool isGameFinished();
+
+    /**
+     * @brief isGameFinished now always return true.
+     */
+    void finishGame();
 };
 };
 
