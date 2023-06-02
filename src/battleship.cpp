@@ -1,6 +1,7 @@
 #include "battleship.h"
 #include "exception.h"
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <string>
 
@@ -24,7 +25,6 @@ board::board(uint16_t width, uint16_t height, loglevel log)
     : m_log(log)
     , m_width(width)
     , m_height(height)
-    , m_gameFinished(false)
 {
     /**We allocate the given pointer to the height it has been given**/
     m_board = new char*[height];
@@ -38,8 +38,8 @@ board::board(uint16_t width, uint16_t height, loglevel log)
 
 board::~board()
 {
-    /**We remove each pointer in the pointer array to avoid memory leaks when clearing the board.
-     * Idea by 1iMAngie during my livestream**/
+    /**We remove each pointer in the pointer array to avoid memory leaks when
+     * clearing the board. Idea by 1iMAngie during my livestream**/
     for (size_t i = 0; i < m_height; i++) {
         delete[] m_board[i];
     }
@@ -60,7 +60,8 @@ void board::printBoard()
 
 void board::createBoats(std::vector<uint8_t> boatsNumber)
 {
-    /**the random device that will seed the generator then make a mersenne twister engine**/
+    /**the random device that will seed the generator then make a mersenne twister
+     * engine**/
     std::random_device seeder;
     std::mt19937 engine(seeder());
     bool isColliding(false);
@@ -71,26 +72,32 @@ void board::createBoats(std::vector<uint8_t> boatsNumber)
     /**Check if the size of width/height can contain the biggest boat**/
     auto maxSizeBoat = *std::max_element(boatsNumber.begin(), boatsNumber.end());
     if ((maxSizeBoat > m_height) || (maxSizeBoat > m_width))
-        throw battleshipException(2, std::string("The grid has a size of " + std::to_string(m_height) + "x" + std::to_string(m_width) + ", the biggest boat has a size of " + std::to_string(maxSizeBoat)));
+        throw battleshipException(
+            2, std::string("The grid has a size of " + std::to_string(m_height) + "x" + std::to_string(m_width) + ", the biggest boat has a size of " + std::to_string(maxSizeBoat)));
     /**for every size of boat**/
     for (auto boatSize : boatsNumber) {
         battleship tempBattleShip(boatSize, (direction)(std::rand() % 3));
         do {
-            /**Algorithm that will dodge negative values or values that exceed the width/height.
+            /**Algorithm that will dodge negative values or values that exceed the
+             * width/height.
              * * pSize = possible Size, pOFO = positionOperatorFromOrientation
              * the tempX explained with uniform_int_distribution(min,max) :
-             * The minimum value is 0-pSize, With pSize = size if WEST (-pSize because pOFO only returns negative values here) (so either 0, or size)
-             * The maximum value is maxWidth-pSize, with pSize = size if EAST (so either maxWidth, or maxWidth-size)
-             * the tempY explained with uniform_int_distribution(min,max) :
-             * The minimum value is 0-pSize, With pSize = size if NORTH (-pSize because pOFO only returns negative values here) (so either 0, or size)
-             * The maximum value is maxWidth-pSize, with pSize = size if SOUTH (so either maxWidth, or maxWidth-size)**/
+             * The minimum value is 0-pSize, With pSize = size if WEST (-pSize because
+             * pOFO only returns negative values here) (so either 0, or size) The
+             * maximum value is maxWidth-pSize, with pSize = size if EAST (so either
+             * maxWidth, or maxWidth-size) the tempY explained with
+             * uniform_int_distribution(min,max) : The minimum value is 0-pSize, With
+             * pSize = size if NORTH (-pSize because pOFO only returns negative values
+             * here) (so either 0, or size) The maximum value is maxWidth-pSize, with
+             * pSize = size if SOUTH (so either maxWidth, or maxWidth-size)**/
             std::uniform_int_distribution<int> tempX(
                 0 + ((tempBattleShip.getOrientation() == direction::WEST) * (boatSize - 1)),
                 m_width - ((tempBattleShip.getOrientation() == direction::EAST) * (boatSize - 1)));
             std::uniform_int_distribution<int> tempY(
                 0 + ((tempBattleShip.getOrientation() == direction::NORTH) * (boatSize - 1)),
                 m_height - ((tempBattleShip.getOrientation() == direction::SOUTH) * (boatSize - 1)));
-            tempBattleShip.setBasePosition((int8_t)tempX(engine), (int8_t)tempY(engine));
+            tempBattleShip.setBasePosition((int8_t)tempX(engine),
+                (int8_t)tempY(engine));
 
             /**Detects if a boat collide with another**/
             isColliding = doesBoatCollide(tempBattleShip);
@@ -116,7 +123,8 @@ bool board::doesBoatCollide(battleship ship)
     for (auto testShips : m_battleships) {
         auto testShipPos = testShips.getBoatPositions();
         /** NOT OPTIMISED
-         * ! Will test each position with all the past boats. -> Could be better in term of pure syntax, as well as algorithm
+         * ! Will test each position with all the past boats. -> Could be better in
+         * term of pure syntax, as well as algorithm
          * TODO : -> Maybe use a std fonction ?**/
         for (auto testPositions : testShipPos) {
             for (auto positions : shipPos) {
@@ -135,8 +143,10 @@ boatStatus board::attack(position pos)
 {
     // We inform in debug where the attack is launched
     if (m_log == loglevel::DEBUG)
-        std::cout << "Launched an attack at x:" << int(pos.x) << ", y:" << int(pos.y) << std::endl;
-    // We iterate through all the boats to find if the position correponds to one of them
+        std::cout << "Launched an attack at x:" << int(pos.x)
+                  << ", y:" << int(pos.y) << std::endl;
+    // We iterate through all the boats to find if the position correponds to one
+    // of them
     for (auto& boat : m_battleships) {
         for (auto& boatPositions : boat.getBoatPositions()) {
             if ((pos.x == boatPositions.x) && (pos.y == boatPositions.y))
@@ -149,7 +159,13 @@ boatStatus board::attack(position pos)
 
 bool board::isGameFinished(void)
 {
-    return m_gameFinished;
+    uint8_t sunkCount(0);
+    for (auto& battleShip : m_battleships) {
+        sunkCount += static_cast<uint8_t>(battleShip.isBoatSunk());
+    }
+    if (m_log == loglevel::DEBUG)
+        std::cout << "Boats sunk : " << std::to_string(sunkCount) << "/" << m_battleships.size() << std::endl;
+    return (sunkCount == m_battleships.size());
 }
 
 /*------------------------------------------------------*/
@@ -159,27 +175,32 @@ bool board::isGameFinished(void)
 battleship::battleship(uint8_t size, direction orientation)
     : m_size(size)
     , m_orientation(orientation)
+    , m_isSunk(false)
 {
     m_hitCount.reserve(size);
 }
 
-void battleship::setBasePosition(int8_t x, int8_t y)
-{
-    m_position = { x, y };
-}
+void battleship::setBasePosition(int8_t x, int8_t y) { m_position = { x, y }; }
 
 void battleship::printBoat()
 {
-    std::cout << "Size :" << (int)m_size << "\tOrientation: " << direction2string(m_orientation) << "\t x=" << (int)m_position.x << "\t y=" << (int)m_position.y << std::endl;
+    std::cout << "Size :" << (int)m_size
+              << "\tOrientation: " << direction2string(m_orientation)
+              << "\t x=" << (int)m_position.x << "\t y=" << (int)m_position.y
+              << std::endl;
 }
 
-position battleship::positionOperatorFromOrientation(direction orientation, bool noNegative, bool noPositive)
+position battleship::positionOperatorFromOrientation(direction orientation,
+    bool noNegative,
+    bool noPositive)
 {
     position returnPos { 0, 0 };
-    /**In the case of a true value for each one, will return null, if false it will return either a minus or a positive value**/
+    /**In the case of a true value for each one, will return null, if false it
+     * will return either a minus or a positive value**/
     int8_t negValue = noNegative ? 0 : -1;
     int8_t posValue = noPositive ? 0 : 1;
-    /**Like a compass, for any given direction, we could increment or decrement a given axis. We return these axis.**/
+    /**Like a compass, for any given direction, we could increment or decrement a
+     * given axis. We return these axis.**/
     switch (orientation) {
     case NORTH:
         returnPos.y = negValue;
@@ -201,35 +222,49 @@ std::vector<position> battleship::getBoatPositions()
 {
     std::vector<position> returnVector;
     position operatorPosition;
-    /**We update the position vector for each given size, with the good orientation**/
+    /**We update the position vector for each given size, with the good
+     * orientation**/
     for (int8_t i = 0; i < m_size; i++) {
         /**We get the operator (+ or -) for the given orientation**/
         operatorPosition = positionOperatorFromOrientation(m_orientation);
-        /**The position is determined with the given orientation, at any given position the x or y axis should increment or decrement by i factor.**/
-        returnVector.push_back({ static_cast<int8_t>(m_position.x + ((operatorPosition.x) * i)), static_cast<int8_t>(m_position.y + ((operatorPosition.y) * i)) });
+        /**The position is determined with the given orientation, at any given
+         * position the x or y axis should increment or decrement by i factor.**/
+        returnVector.push_back(
+            { static_cast<int8_t>(m_position.x + ((operatorPosition.x) * i)),
+                static_cast<int8_t>(m_position.y + ((operatorPosition.y) * i)) });
     }
     return returnVector;
 }
 
-direction battleship::getOrientation()
-{
-    return m_orientation;
-}
+direction battleship::getOrientation() { return m_orientation; }
 
 boatStatus battleship::hitBoat(position pos)
 {
+    boatStatus returnStatus;
     // We first verify if all the position of the boat has already been hit
     if (m_hitCount.size() >= m_size)
         return boatStatus::SUNK;
-    // Then we verify if the position given corresponds to a position of the hit count
+    // Then we verify if the position given corresponds to a position of the hit
+    // count
     for (auto& boatHit : m_hitCount) {
         if ((boatHit.x == pos.x) && (boatHit.y == pos.y))
-            return  boatStatus::SPLASHBOAT;
+            return boatStatus::SPLASHBOAT;
     }
     // If not we add the position to the hit count
     m_hitCount.push_back(pos);
     // We then verify, if we don't hit the boat, that the boat is sinking or not.
-    return m_hitCount.size() >= m_size ? boatStatus::SUNK : boatStatus::HIT;
+    if (m_hitCount.size() >= m_size) {
+        m_isSunk = true;
+        returnStatus = boatStatus::SUNK;
+    } else {
+        returnStatus = boatStatus::HIT;
+    }
+    return returnStatus;
+}
+
+bool battleship::isBoatSunk(void)
+{
+    return m_isSunk;
 }
 
 /*------------------------------------------------------*/

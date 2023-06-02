@@ -2,14 +2,13 @@
 #define HEADER_BTUI_BATTLESHIP
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <numeric>
 #include <random>
-#include <cstdint>
 #include <vector>
-
 
 #define BASE_CHAR '.'
 #define LENGTH_BASE 10
@@ -70,6 +69,11 @@ private:
      * @brief works like a base position, the turning point for the boat.
      */
     position m_position;
+    /**
+     * @brief verify the actual state of the boat.
+     */
+    bool m_isSunk;
+
 public:
     battleship(uint8_t size, direction orientation);
 
@@ -116,11 +120,19 @@ public:
      * @brief Will hit the boat, and return a status. If the status corresponds to a hit.
      * It will update the hitCount vector and reduce the 'health' of the boat. Otherwise will only
      * Send the appropriate status
-     * 
+     *
      * @param pos the position to hit the boat
      * @return boatStatus HIT if ok, SPLASH if already hit, SUNK if the boat is no longer up
      */
     boatStatus hitBoat(position pos);
+
+    /**
+     * @brief The status of the boat
+     *
+     * @return true if the boat has sunk
+     * @return false if the boat is still up
+     */
+    bool isBoatSunk(void);
 };
 
 class board {
@@ -130,12 +142,6 @@ private:
     uint16_t m_width;
     uint16_t m_height;
     std::vector<battleship> m_battleships;
-
-    /**
-     * ! FOR NOW NOT WORKING
-     * Will inform the user if the game is finished
-     */
-    bool m_gameFinished;
 
     /**
      * @brief PROMPT TO HUGE UPDATE : NOT OPTIMISED
@@ -186,10 +192,10 @@ public:
     boatStatus attack(position pos);
 
     /**
-     * @brief 
-     * 
-     * @return true 
-     * @return false 
+     * @brief
+     *
+     * @return true
+     * @return false
      */
     bool isGameFinished();
 };
