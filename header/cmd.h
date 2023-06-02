@@ -35,6 +35,9 @@ protected:
     std::string m_cmd;
     std::map<std::string, std::string> m_commandMap;
 
+    completeCommand_t m_commandParsed;
+    valuesArg m_vars;
+
     /**
      * @brief With the given m_cmd, will return a vector of string of
      * all the arguments as well as the command itself in a form of a vector.
@@ -55,6 +58,8 @@ protected:
 public:
     commandGeneric();
     ~commandGeneric();
+
+    void readCommand(std::string cmd);
 };
 
 class commandException : public std::exception {

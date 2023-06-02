@@ -8,9 +8,9 @@ using namespace battleshiptui;
 commandBattleship::commandBattleship(board& actualBoard)
     : m_board(actualBoard)
 {
-    m_commandMap = { { "attack", "bb" },
-        { "testfloat", "f" },
-        { "teststring", "s" } };
+    m_commandMap.insert({ "attack", "bb" });
+    m_commandMap.insert({ "testfloat", "f" });
+    m_commandMap.insert({ "teststring", "s" });
 }
 
 commandBattleship::~commandBattleship()
@@ -19,11 +19,9 @@ commandBattleship::~commandBattleship()
 
 void commandBattleship::readCommand(std::string cmd)
 {
-    m_cmd = cmd;
-    auto commandParsed = parser();
-    auto vars = argParser(commandParsed);
-    if (commandParsed.command == "attack") {
-        auto status = m_board.attack(position { static_cast<int8_t>(vars.byteArg[0]), static_cast<int8_t>(vars.byteArg[1]) });
+    commandGeneric::readCommand(cmd);
+    if (m_commandParsed.command == "attack") {
+        auto status = m_board.attack(position { static_cast<int8_t>(m_vars.byteArg[0]), static_cast<int8_t>(m_vars.byteArg[1]) });
         switch (status) {
         case boatStatus::HIT:
             std::cout << "Boat hit !" << std::endl;

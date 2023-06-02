@@ -11,6 +11,7 @@ using namespace command;
 
 commandGeneric::commandGeneric()
 {
+    m_commandMap = { {"help", ""} };
 }
 
 commandGeneric::~commandGeneric()
@@ -39,7 +40,10 @@ completeCommand_t commandGeneric::parser(void)
         copy_cmd.erase(0, pos + 1);
     }
     // We get the last argument
-    parsing.args.push_back(copy_cmd.substr(pos + 1, copy_cmd.size()));
+    if(isArg)
+        parsing.args.push_back(copy_cmd.substr(pos + 1, copy_cmd.size()));
+    else
+        parsing.command = copy_cmd;
     return parsing;
 }
 
@@ -92,6 +96,15 @@ valuesArg commandGeneric::argParser(completeCommand_t completeCmd)
         i++;
     }
     return returnValuesArg;
+}
+
+void commandGeneric::readCommand(std::string cmd)
+{
+    m_cmd = cmd;
+    m_commandParsed = parser();
+    m_vars = argParser(m_commandParsed);
+    if (m_commandParsed.command == "help")
+        std::cout << "help is is WIP for now." << std::endl;
 }
 
 /*------------------------------------------------------*/
