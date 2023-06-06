@@ -54,5 +54,7 @@ void commandBattleship::attack(void)
 void commandBattleship::terminate(void)
 {
     m_board.finishGame();
+    std::cout << "\nHere was the board :" << std::endl;
     m_board.printBoard(true);
+    std::cout << "You sunk" << (int)(m_board.getSunkcount()) << " boats." << std::endl;
 }

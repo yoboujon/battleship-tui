@@ -55,9 +55,12 @@ void board::printBoard(bool showBoats)
         for (int8_t j = 0; j < m_height; j++) {
             auto printChar = m_board[i][j];
             if (showBoats) {
-                uint8_t boatSize = findBoat(position{i,j}).getSize();
-                if(boatSize > 0)
-                    printChar = boatSize+0x30;  //convert num to ascii
+                /* ! Could be better : we iterate through all the position of the boat
+                Only to receive one. We could get all the pos of the boat. then for loop
+                to each position that is not known*/
+                auto boat = findBoat(position{i,j});
+                if(boat != NULL)
+                    printChar = boat->getSize()+0x30;  //convert num to ascii
             }
             std::cout << "[" << printChar << "] ";
         }
@@ -146,16 +149,16 @@ bool board::doesBoatCollide(battleship ship)
     return false;
 }
 
-battleship board::findBoat(position pos)
+battleship* board::findBoat(position pos)
 {
     /* We iterate through all the boats to find if the position correponds to one of them*/
     for (auto& boat : m_battleships) {
         for (auto& boatPositions : boat.getBoatPositions()) {
             if ((pos.x == boatPositions.x) && (pos.y == boatPositions.y))
-                return boat;
+                return &boat;
         }
     }
-    return battleship(0, direction::EAST);
+    return NULL;
 }
 
 boatStatus board::attack(position pos)
@@ -167,20 +170,26 @@ boatStatus board::attack(position pos)
                   << ", y:" << int(pos.y) << std::endl;
     //If a boat is found we uopdate the status and do damage to the boat
     auto boat = findBoat(pos);
-    if (boat.getSize() > 0)
-        status = boat.hitBoat(pos);
+    if (boat != NULL)
+        status = boat->hitBoat(pos);
     // If no boat found then we return the SPLASHWATER status
     updateBoard(pos, status);
     return status;
 }
 
-bool board::isGameFinished(void)
+uint8_t board::getSunkcount(void)
 {
     uint8_t sunkCount(0);
     // For every boat that are sunk
     for (auto& battleShip : m_battleships) {
         sunkCount += static_cast<uint8_t>(battleShip.isBoatSunk());
     }
+    return sunkCount;
+}
+
+bool board::isGameFinished(void)
+{
+    auto sunkCount(getSunkcount());
     if (m_log == loglevel::DEBUG)
         std::cout << "Boats sunk : " << std::to_string(sunkCount) << "/" << m_battleships.size() << std::endl;
     // If forceFinish return true, otherwise test the battleship count with the sunkCount
@@ -291,7 +300,9 @@ boatStatus battleship::hitBoat(position pos)
     // count
     for (auto& boatHit : m_hitCount) {
         if ((boatHit.x == pos.x) && (boatHit.y == pos.y))
+        {
             return boatStatus::SPLASHBOAT;
+        }
     }
     // If not we add the position to the hit count
     m_hitCount.push_back(pos);

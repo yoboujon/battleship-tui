@@ -162,7 +162,7 @@ private:
 
     void updateBoard(position pos, boatStatus status);
 
-    battleship findBoat(position pos);
+    battleship* findBoat(position pos);
 
 public:
     /**
@@ -216,6 +216,8 @@ public:
      * @brief isGameFinished now always return true.
      */
     void finishGame();
+
+    uint8_t getSunkcount(void);
 };
 };
 

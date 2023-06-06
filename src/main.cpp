@@ -25,6 +25,7 @@ int main(void)
 
     // Step
     while (!userBoard.isGameFinished()) {
+        std::cout << "Remaining boats :" << boatSetup.size()-userBoard.getSunkcount() << std::endl;
         userBoard.printBoard();
         std::cout << "Enter a command." << std::endl;
         std::getline(std::cin, userInput);
