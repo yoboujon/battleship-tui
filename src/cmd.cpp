@@ -104,7 +104,12 @@ void commandGeneric::readCommand(std::string cmd)
     m_commandParsed = parser();
     m_vars = argParser(m_commandParsed);
     if (m_commandParsed.command == "help")
-        std::cout << "help is is WIP for now." << std::endl;
+        help();
+}
+
+void commandGeneric::help(void)
+{
+    std::cout << "help is is in for now." << std::endl;
 }
 
 /*------------------------------------------------------*/

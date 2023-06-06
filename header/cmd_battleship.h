@@ -13,6 +13,8 @@ namespace battleshiptui {
 class commandBattleship : public command::commandGeneric {
 private:
     board& m_board;
+    void attack(void);
+    void terminate(void);
 
 public:
     commandBattleship(board& actualBoard);

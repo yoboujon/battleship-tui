@@ -48,18 +48,24 @@ board::~board()
     delete m_board;
 }
 
-void board::printBoard()
+void board::printBoard(bool showBoats)
 {
     /**From the given width and height will print out the board.**/
-    for (int i = 0; i < m_width; i++) {
-        for (int j = 0; j < m_height; j++) {
-            std::cout << "[" << m_board[i][j] << "] ";
+    for (int8_t i = 0; i < m_width; i++) {
+        for (int8_t j = 0; j < m_height; j++) {
+            auto printChar = m_board[i][j];
+            if (showBoats) {
+                uint8_t boatSize = findBoat(position{i,j}).getSize();
+                if(boatSize > 0)
+                    printChar = boatSize+0x30;  //convert num to ascii
+            }
+            std::cout << "[" << printChar << "] ";
         }
         std::cout << "\n";
     }
 }
 
-void board::createBoats(std::vector<uint8_t> boatsNumber)
+void board::randomiseBoats(std::vector<uint8_t> boatsNumber)
 {
     /**the random device that will seed the generator then make a mersenne twister
      * engine**/
@@ -140,6 +146,18 @@ bool board::doesBoatCollide(battleship ship)
     return false;
 }
 
+battleship board::findBoat(position pos)
+{
+    /* We iterate through all the boats to find if the position correponds to one of them*/
+    for (auto& boat : m_battleships) {
+        for (auto& boatPositions : boat.getBoatPositions()) {
+            if ((pos.x == boatPositions.x) && (pos.y == boatPositions.y))
+                return boat;
+        }
+    }
+    return battleship(0, direction::EAST);
+}
+
 boatStatus board::attack(position pos)
 {
     auto status(boatStatus::SPLASHWATER);
@@ -147,17 +165,10 @@ boatStatus board::attack(position pos)
     if (m_log == loglevel::DEBUG)
         std::cout << "Launched an attack at x:" << int(pos.x)
                   << ", y:" << int(pos.y) << std::endl;
-    // We iterate through all the boats to find if the position correponds to one
-    // of them
-    for (auto& boat : m_battleships) {
-        for (auto& boatPositions : boat.getBoatPositions()) {
-            if ((pos.x == boatPositions.x) && (pos.y == boatPositions.y)) {
-                status = boat.hitBoat(pos);
-                updateBoard(pos, status);
-                return status;
-            }
-        }
-    }
+    //If a boat is found we uopdate the status and do damage to the boat
+    auto boat = findBoat(pos);
+    if (boat.getSize() > 0)
+        status = boat.hitBoat(pos);
     // If no boat found then we return the SPLASHWATER status
     updateBoard(pos, status);
     return status;
@@ -166,19 +177,20 @@ boatStatus board::attack(position pos)
 bool board::isGameFinished(void)
 {
     uint8_t sunkCount(0);
-    //For every boat that are sunk
+    // For every boat that are sunk
     for (auto& battleShip : m_battleships) {
         sunkCount += static_cast<uint8_t>(battleShip.isBoatSunk());
     }
     if (m_log == loglevel::DEBUG)
         std::cout << "Boats sunk : " << std::to_string(sunkCount) << "/" << m_battleships.size() << std::endl;
-    //If forceFinish return true, otherwise test the battleship count with the sunkCount
-    return m_forceFinish? true : sunkCount == m_battleships.size();
+    // If forceFinish return true, otherwise test the battleship count with the sunkCount
+    return m_forceFinish ? true : sunkCount == m_battleships.size();
 }
 
 void board::updateBoard(position pos, boatStatus status)
 {
-    std::cout << "Updating board at x:" << int(pos.x) << ", y:" << int(pos.y) << ", with status:" << static_cast<int>(status) << std::endl;
+    if (m_log == loglevel::DEBUG)
+        std::cout << "updateBoard : updating at x:" << int(pos.x) << ", y:" << int(pos.y) << ", with status:" << static_cast<int>(status) << std::endl;
     switch (status) {
     case boatStatus::HIT:
     case boatStatus::SUNK:
@@ -266,6 +278,8 @@ std::vector<position> battleship::getBoatPositions()
 }
 
 direction battleship::getOrientation() { return m_orientation; }
+
+uint8_t battleship::getSize() { return m_size; }
 
 boatStatus battleship::hitBoat(position pos)
 {

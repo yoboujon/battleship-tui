@@ -55,6 +55,8 @@ protected:
      */
     valuesArg argParser(completeCommand_t completeCmd);
 
+    void help(void);
+
 public:
     commandGeneric();
     ~commandGeneric();

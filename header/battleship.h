@@ -138,6 +138,8 @@ public:
      * @return false if the boat is still up
      */
     bool isBoatSunk(void);
+
+    uint8_t getSize(void);
 };
 
 class board {
@@ -160,6 +162,8 @@ private:
 
     void updateBoard(position pos, boatStatus status);
 
+    battleship findBoat(position pos);
+
 public:
     /**
      * @brief Construct a new board object with the given LENGTH_BASE
@@ -180,8 +184,9 @@ public:
      * @brief Prints out the m_board with the battle ships.
      * Shows every position that the user touched.
      *
+     * @param showBoats if true, will show the non hit boats
      */
-    void printBoard();
+    void printBoard(bool showBoats=false);
 
     /**
      * @brief Create multiple boat with a given vector of uint.
@@ -190,7 +195,7 @@ public:
      *
      * @param boatsNumber  the size represents the number of boat, and each number is the boat's size.
      */
-    void createBoats(std::vector<uint8_t> boatsNumber);
+    void randomiseBoats(std::vector<uint8_t> boatsNumber);
 
     /**
      * @brief Will deal damage to a boat if found at the given position
