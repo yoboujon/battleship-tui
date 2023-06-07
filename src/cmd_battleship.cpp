@@ -27,6 +27,14 @@ void commandBattleship::readCommand(std::string cmd)
     if (m_commandParsed.command == "terminate") {
         terminate();
     }
+    if(m_commandParsed.command == "testfloat")
+    {
+        std::cout << "Gathered float: " << m_vars.doubleArg[0] << std::endl;
+    }
+     if(m_commandParsed.command == "teststring")
+    {
+        std::cout << "Gathered string: " << m_vars.string[0] << std::endl;
+    }
 }
 
 void commandBattleship::attack(void)

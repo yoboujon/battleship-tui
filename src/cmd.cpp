@@ -67,21 +67,34 @@ valuesArg commandGeneric::argParser(completeCommand_t completeCmd)
         throw commandException(2, "'" + completeCmd.command + "' asks for " + std::to_string(m_commandMap[completeCmd.command].size()) + " arguments, " + std::to_string(completeCmd.args.size()) + " provided.");
     for (auto expectedType : m_commandMap[completeCmd.command]) {
         switch (expectedType) {
+        //char
         case 'c':
             thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a char.", false, false, false, true);
             returnValuesArg.charArg.push_back(completeCmd.args[i][0]);
             break;
+        //byte (uchar)
         case 'b':
             thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned byte.", true, true, true, false);
             returnValuesArg.byteArg.push_back(static_cast<uint8_t>(std::stoi(completeCmd.args[i])));
             break;
+        //uint
         case 'u':
             thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned number.", true, true, true, false);
             returnValuesArg.uintArg.push_back(std::stoll(completeCmd.args[i]));
             break;
+        //int
         case 'i':
             thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a whole number.", false, true, true, false);
             returnValuesArg.intArg.push_back(std::stoll(completeCmd.args[i]));
+            break;
+        //float/double
+        case 'f':
+            thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a float.", false, false, true, false);
+            returnValuesArg.doubleArg.push_back(std::stod(completeCmd.args[i]));
+            break;
+        //string
+        case 's':
+            returnValuesArg.string.push_back(completeCmd.args[i]);
             break;
         default:
             throw commandException(3, "'" + completeCmd.command + "': Invalid command mapping.");
@@ -115,7 +128,7 @@ void commandGeneric::thrower(std::string argument, std::string errorString, bool
     if (testString) {
         std::locale loc;
         for (unsigned long i(0); i < argument.size(); i++) {
-            if (!(((argument[i] >= 0x30) && (argument[i] < 0x39)) || (argument[i] == '.')))
+            if (!(((argument[i] >= 0x30) && (argument[i] < 0x39)) || (argument[i] == '.') || (argument[i] == '-')))
                 throw commandException(STRING, errorString);
         }
     }
