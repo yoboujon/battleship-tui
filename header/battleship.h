@@ -218,6 +218,8 @@ public:
     void finishGame();
 
     uint8_t getSunkcount(void);
+
+    loglevel getLogLevel(void);
 };
 };
 

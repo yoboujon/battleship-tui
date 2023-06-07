@@ -213,10 +213,9 @@ void board::updateBoard(position pos, boatStatus status)
     }
 }
 
-void board::finishGame()
-{
-    m_forceFinish = true;
-}
+void board::finishGame() {m_forceFinish = true;}
+
+loglevel board::getLogLevel() {return m_log;}
 
 /*------------------------------------------------------*/
 /*                    Battleship                        */

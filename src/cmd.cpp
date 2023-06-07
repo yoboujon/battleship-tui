@@ -1,5 +1,7 @@
 #include "cmd.h"
+#include <cctype>
 #include <iostream>
+#include <locale>
 #include <stdint.h>
 #include <string>
 
@@ -11,7 +13,7 @@ using namespace command;
 
 commandGeneric::commandGeneric()
 {
-    m_commandMap = { {"help", ""} };
+    m_commandMap = { { "help", "" } };
 }
 
 commandGeneric::~commandGeneric()
@@ -40,7 +42,7 @@ completeCommand_t commandGeneric::parser(void)
         copy_cmd.erase(0, pos + 1);
     }
     // We get the last argument
-    if(isArg)
+    if (isArg)
         parsing.args.push_back(copy_cmd.substr(pos + 1, copy_cmd.size()));
     else
         parsing.command = copy_cmd;
@@ -66,27 +68,19 @@ valuesArg commandGeneric::argParser(completeCommand_t completeCmd)
     for (auto expectedType : m_commandMap[completeCmd.command]) {
         switch (expectedType) {
         case 'c':
-            if (completeCmd.args[i].size() > 1)
-                throw commandException(NOTCHAR, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a char.");
+            thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a char.", false, false, false, true);
             returnValuesArg.charArg.push_back(completeCmd.args[i][0]);
             break;
         case 'b':
-            if (completeCmd.args[i].find('.') != std::string::npos)
-                throw commandException(FLOAT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned byte.");
-            if (std::stoi(completeCmd.args[i]) < 0)
-                throw commandException(INT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned byte.");
+            thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned byte.", true, true, true, false);
             returnValuesArg.byteArg.push_back(static_cast<uint8_t>(std::stoi(completeCmd.args[i])));
             break;
         case 'u':
-            if (completeCmd.args[i].find('.') != std::string::npos)
-                throw commandException(FLOAT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned number.");
-            if (std::stoll(completeCmd.args[i]) < 0)
-                throw commandException(INT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned number.");
+            thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be an unsigned number.", true, true, true, false);
             returnValuesArg.uintArg.push_back(std::stoll(completeCmd.args[i]));
             break;
         case 'i':
-            if (completeCmd.args[i].find('.') != std::string::npos)
-                throw commandException(FLOAT, "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a whole number.");
+            thrower(completeCmd.args[i], "'" + completeCmd.command + "': argument " + std::to_string(i + 1) + " must be a whole number.", false, true, true, false);
             returnValuesArg.intArg.push_back(std::stoll(completeCmd.args[i]));
             break;
         default:
@@ -109,7 +103,28 @@ void commandGeneric::readCommand(std::string cmd)
 
 void commandGeneric::help(void)
 {
-    std::cout << "help is is in for now." << std::endl;
+    std::cout << "help is in WIP for now." << std::endl;
+}
+
+void commandGeneric::thrower(std::string argument, std::string errorString, bool testNegative, bool testFloat, bool testString, bool testChar)
+{
+    /*testChar checks if the size of the string is =1*/
+    if ((argument.size() > 1) && testChar)
+        throw commandException(NOTCHAR, errorString);
+    /*testString checks if all the characters are either numbers or a '.'(for float nums)*/
+    if (testString) {
+        std::locale loc;
+        for (unsigned long i(0); i < argument.size(); i++) {
+            if (!(((argument[i] >= 0x30) && (argument[i] < 0x39)) || (argument[i] == '.')))
+                throw commandException(STRING, errorString);
+        }
+    }
+    /* testFloat checks if there is a dot, aka float number*/
+    if ((argument.find('.') != std::string::npos) && testFloat)
+        throw commandException(FLOAT, errorString);
+    /* testNegative checks if the converted long long value is negative*/
+    if ((std::stoll(argument) < 0) && testNegative)
+        throw commandException(INT, errorString);
 }
 
 /*------------------------------------------------------*/

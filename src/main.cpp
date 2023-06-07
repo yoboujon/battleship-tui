@@ -25,13 +25,15 @@ int main(void)
 
     // Step
     while (!userBoard.isGameFinished()) {
-        std::cout << "Remaining boats :" << boatSetup.size()-userBoard.getSunkcount() << std::endl;
+        std::cout << "Remaining boats :" << boatSetup.size() - userBoard.getSunkcount() << std::endl;
         userBoard.printBoard();
         std::cout << "Enter a command." << std::endl;
         std::getline(std::cin, userInput);
         try {
             userCommand.readCommand(userInput);
         } catch (command::commandException& e) {
+            if (userBoard.getLogLevel() == loglevel::DEBUG)
+                std::cout << "Error code " << e.getErrorCode() << " :";
             std::cout << e.getError() << std::endl;
         } catch (battleshipException& e) {
             std::cout << "Battleship-TUI Error " << e.getErrorCode() << ": " << e.getError() << std::endl;

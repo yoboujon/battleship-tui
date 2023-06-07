@@ -13,7 +13,8 @@ enum ERR {
     FLOAT = 4,
     INT = 5,
     UINT = 6,
-    NOTCHAR = 7
+    NOTCHAR = 7,
+    STRING = 8
 };
 
 typedef struct {
@@ -31,6 +32,8 @@ typedef struct {
 } completeCommand_t;
 
 class commandGeneric {
+private:
+    void thrower(std::string argument, std::string errorString, bool testNegative, bool testFloat, bool testString, bool testChar);
 protected:
     std::string m_cmd;
     std::map<std::string, std::string> m_commandMap;
